@@ -4,6 +4,7 @@
 #include <conio.h>
 
 #include "buku.c"
+#include "pinjaman.c"
 
 #define MxN 255
 #define cls system("cls");
@@ -35,6 +36,7 @@ void deleteMembership ();
 void updateMembership ();
 
 AVLBuku list_buku = NULL;
+ArrayPinjaman list_pinjaman;
 
 FILE *fp;
 
@@ -214,6 +216,7 @@ void default_input () {
 }
 
 void load_data () {
+    initArrayPinjaman(&list_pinjaman,10);
     DataBuku temp;
     fp = fopen("dataBuku.txt", "r");
     while (fscanf(fp,"%[^#]#%[^#]#%d\n", temp.judul, temp.pengarang, &temp.qty) != EOF) {

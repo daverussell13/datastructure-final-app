@@ -46,6 +46,13 @@ void getCurrentDate(struct tm* current_date) {
   *current_date = *localtime(&t);
 }
 
+void createDeadline(struct tm* deadline, int date, int month, int year) {
+  memset(&deadline,0,sizeof(struct tm));
+  deadline->tm_mday = date;
+  deadline->tm_mon = (month - 1);
+  deadline->tm_year = (year - 1900);
+}
+
 Pinjaman newPinjaman (
   const char* judul,
   const char* pengarang,
@@ -59,4 +66,8 @@ Pinjaman newPinjaman (
   strcpy(new_pinjaman.judul,judul);
   strcpy(new_pinjaman.pengarang,pengarang);
   strcpy(new_pinjaman.nik_peminjam,nik);
+  new_pinjaman.no_pinjaman = no;
+  getCurrentDate(&new_pinjaman.tanggal_peminjaman);
+  memset(&new_pinjaman.tanggal_pengembalian,0,sizeof(struct tm));
+  createDate(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
 }
