@@ -137,7 +137,7 @@ void AVLMember_Display(AVLMember root) {
 
 AVLMember AVLMember_Search(AVLMember root, const char* nik) {
   if (root == NULL) return NULL;
-  else if (strcmp(nik, root->data.nik) < 0) return AVLBuku_Search(root->left, nik);
-  else if (strcmp(nik, root->data.nik) > 0) return AVLBuku_Search(root->right, nik);
+  else if (strcmp(nik, root->data.nik) < 0) return AVLMember_Search(root->left, nik);
+  else if (strcmp(nik, root->data.nik) > 0) return AVLMember_Search(root->right, nik);
   else return root;
 }
