@@ -2,12 +2,16 @@
 #define ull unsigned long long
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
   char judul[MxN];
   char pengarang[MxN];
   char nik_peminjam[MxN];
   ull no_pinjaman;
+  struct tm tanggal_peminjaman;
+  struct tm tanggal_pengembalian;
+  struct tm tanggal_deadline;
 } Pinjaman;
 
 // Dynamic array
@@ -37,6 +41,22 @@ void freeArray(ArrayPinjaman *a) {
   a->used = a->size = 0;
 }
 
-Pinjaman newPinjaman(const char* judul, const char* pengarang, const char* nik, ull no) {
+void getCurrentDate(struct tm* current_date) {
+  time_t t = time(NULL);
+  *current_date = *localtime(&t);
+}
 
+Pinjaman newPinjaman (
+  const char* judul,
+  const char* pengarang,
+  const char* nik,
+  ull no,
+  int tanggal_deadline,
+  int bulan_deadline,
+  int tahun_deadline
+) {
+  Pinjaman new_pinjaman;
+  strcpy(new_pinjaman.judul,judul);
+  strcpy(new_pinjaman.pengarang,pengarang);
+  strcpy(new_pinjaman.nik_peminjam,nik);
 }

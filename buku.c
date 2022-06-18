@@ -159,7 +159,7 @@ void AVLBuku_Insert(AVLBuku* root, DataBuku data) { *root = insertNodeBuku(*root
 void AVLBuku_Delete(AVLBuku* root, const char* judul, const char* pengarang) { *root = deleteNodeBuku(*root, judul, pengarang); }
 
 // Searching
-AVLBuku AVLBuku_Search (AVLBuku root, const char* judul, const char* pengarang) {
+AVLBuku AVLBuku_Search(AVLBuku root, const char* judul, const char* pengarang) {
   if (root == NULL) return NULL;
   else if (strcmp(judul, root->data.judul) < 0) return AVLBuku_Search(root->left, judul, pengarang);
   else if (strcmp(judul, root->data.judul) > 0) return AVLBuku_Search(root->right, judul, pengarang);
