@@ -20,28 +20,35 @@ void initArrayNoPinjaman(ArrayNoPinjaman *a, size_t initialSize) {
   a->size = initialSize;
 }
 
-void insertArrayNoPinjaman(ArrayNoPinjaman *a, int element) {
+void insertArrayNoPinjaman(ArrayNoPinjaman *a, ull no_pinjaman) {
   if (a->used == a->size) {
     a->size *= 2;
     a->arr = (ull*)realloc(a->arr, a->size * sizeof(ull));
   }
-  a->arr[a->used++] = element;
+  a->arr[a->used++] = no_pinjaman;
 }
 
-void deleteArrayNoPinjaman(ArrayNoPinjaman *a, ull no_pinjaman) {
-  ull *temp = (ull*)malloc(a->size-1);
-  a->used--;
-  for (int i = 0; i < a->used; i++) {
-    if (a->arr[i] != no_pinjaman) {
-
-    }
-  }
-}
-
-void freeArray(ArrayNoPinjaman *a) {
+void freeArrayNoPinjaman(ArrayNoPinjaman *a) {
   free(a->arr);
   a->arr = NULL;
   a->used = a->size = 0;
+}
+
+void deleteArrayNoPinjaman(ArrayNoPinjaman *a, ull no_pinjaman) {
+  ArrayNoPinjaman temp;
+  temp.arr = (ull*)malloc(10 * sizeof(ull));
+  temp.size = 10;
+  temp.used = 0;
+  int notFound = 1;
+  for (int i = 0; i < a->used; i++) {
+    if (a->arr[i] != no_pinjaman) {
+      insertArrayNoPinjaman(&temp, a->arr[i]);
+      notFound = 0;
+    }
+  }
+  if (notFound) return;
+  freeArrayNoPinjaman(a);
+  *a = temp;
 }
 
 typedef struct {
@@ -159,7 +166,16 @@ DataMember newDataMember (
   strcpy(dataMember.no_hp, no_hp);
   strcpy(dataMember.alamat, alamat);
   strcpy(dataMember.nik, nik);
+  initArrayNoPinjaman(&dataMember.list_pinjaman, 10);
   return dataMember;
+}
+
+void addNoPinjaman(AVLMember member, ull no_pinjaman) {
+  insertArrayNoPinjaman(&member->data.list_pinjaman, no_pinjaman);
+}
+
+void removeNoPinjaman(AVLMember member, ull no_pinjaman) {
+  deleteArrayNoPinjaman(&member->data.list_pinjaman, no_pinjaman);
 }
 
 void AVLMember_Insert(AVLMember* root, DataMember data) { *root = insertNodeMember(*root, data); }
