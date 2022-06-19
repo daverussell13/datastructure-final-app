@@ -526,9 +526,18 @@ void returnBuku () {
                     printf("Terimakasih telah mengembalikan tepat waktu :D\n");
                     enter getchar();
                 }
-                // ubah status
+                // ubah status, quantity, writing data
                 list_pinjaman.arr[arr[no_pinjaman]].status = 'r';
+                AVLBuku buku = AVLBuku_Search(
+                    list_buku,
+                    list_pinjaman.arr[arr[no_pinjaman]].judul,
+                    list_pinjaman.arr[arr[no_pinjaman]].pengarang
+                );
+                AVLBuku_UpdateQty(list_buku, buku->data.judul, buku->data.pengarang, buku->data.qty+1);
                 writeDataPinjaman();
+                fp = fopen("dataBuku.txt","w");
+                AVLBuku_WriteAllData(list_buku, fp);
+                fclose(fp);
             }
             else {
                 puts("Invalid input");
