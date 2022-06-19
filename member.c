@@ -241,9 +241,9 @@ int AVLMember_Update(AVLMember root, const char* nik, char* nama, char* no_hp, c
   else if (strcmp(nik, root->data.nik) < 0) return AVLMember_Update(root->left, nik, nama, no_hp, alamat);
   else if (strcmp(nik, root->data.nik) > 0) return AVLMember_Update(root->right, nik, nama, no_hp, alamat);
   else {
-    strcpy(root->data.alamat,nama);
-    strcpy(root->data.nama,no_hp);
-    strcpy(root->data.no_hp,alamat);
+    strcpy(root->data.alamat,alamat);
+    strcpy(root->data.nama,nama);
+    strcpy(root->data.no_hp,no_hp);
     return 1;
   }
 }
