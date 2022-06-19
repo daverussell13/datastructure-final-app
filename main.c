@@ -242,24 +242,26 @@ void people_management () {
 }
 
 void history_management () {
+    cls
     int i, no = 1;
+    ascii_art();
     puts("History Peminjaman Buku");
     puts("-----------------------");
     for (i = 0; i < list_pinjaman.used; i++) {
         if (list_pinjaman.arr[i].status == 'r') {
             AVLMember peminjam = AVLMember_Search(list_member,list_pinjaman.arr[i].nik_peminjam);
-            printf("\n%d. Judul : %s\n", no++, list_pinjaman.arr[i].judul);
-            printf("   Pengarang : %s\n", list_pinjaman.arr[i].pengarang);
-            printf("   Peminjam : %s\n", peminjam->data.nama);
-            printf("   Tanggal Peminjaman : ");
+            printf("\n%d. Judul\t\t: %s\n", no++, list_pinjaman.arr[i].judul);
+            printf("   Pengarang\t\t: %s\n", list_pinjaman.arr[i].pengarang);
+            printf("   Peminjam\t\t: %s\n", peminjam->data.nama);
+            printf("   Tanggal Peminjaman\t: ");
             printFormattedDate(&list_pinjaman.arr[i].tanggal_peminjaman);
             printf("\n");
-            printf("   Tanggal Pengembalian : ");
+            printf("   Tanggal Pengembalian\t: ");
             printFormattedDate(&list_pinjaman.arr[i].tanggal_pengembalian);
             printf("\n");
         }
     }
-    printf("\n");
+    printf("\n\n");
     enter getchar();
 }
 
@@ -471,13 +473,13 @@ void pinjamBuku () {
 
         if (buku && buku->data.qty) {
             addNoPinjaman(orang, no_pinjaman++);
-            buku->data.qty--;
             printf("\n\nDeadline :\n");
             printf("1. Set Otomatis (7 hari)\n");
             printf("2. Set Manual\n");
             symbl scanf("%d", &option); clear_buff();
 
             if (option == 1) {
+                buku->data.qty--;
                 dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
                 insertArrayPinjaman(&list_pinjaman, dataPinjaman);
             }
@@ -500,6 +502,7 @@ void pinjamBuku () {
                     return;
                 }
                 else {
+                    buku->data.qty--;
                     dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
                     insertArrayPinjaman(&list_pinjaman, dataPinjaman);
                 }
@@ -623,8 +626,8 @@ void returnBuku () {
 
 void reminder() {
     cls
-
     int i, idx = 0, selisih_hari;
+    ascii_art();
     puts("Reminder");
     puts("===================");
     Pinjaman dataPinjaman[list_pinjaman.used];
@@ -644,16 +647,16 @@ void reminder() {
     for (i = 0; i < idx; i++) {
         AVLMember peminjam = AVLMember_Search(list_member, dataPinjaman[i].nik_peminjam);
         printf("\nNo %d.\n",i+1);
-        printf("Judul : %s\n",dataPinjaman[i].judul);
-        printf("Pengarang : %s\n",dataPinjaman[i].pengarang);
-        printf("Peminjam : %s\n",peminjam->data.nama);
-        printf("Deadline : "); printFormattedDate(&dataPinjaman[i].tanggal_deadline);
+        printf("Judul\t\t: %s\n",dataPinjaman[i].judul);
+        printf("Pengarang\t: %s\n",dataPinjaman[i].pengarang);
+        printf("Peminjam\t: %s\n",peminjam->data.nama);
+        printf("Deadline\t: "); printFormattedDate(&dataPinjaman[i].tanggal_deadline);
         selisih_hari = getDiffDay(dataPinjaman[i].tanggal_deadline, this_day);
         if (selisih_hari > 0) printf(" (%d Hari lagi)\n", selisih_hari);
         else if (!selisih_hari) printf(" (Hari Terakhir)\n");
         else printf(" (Terlambat)\n");
-        printf("\n");
     }
+    printf("\n");
     enter getchar();
 }
 
