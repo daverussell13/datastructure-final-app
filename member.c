@@ -198,14 +198,15 @@ AVLMember AVLMember_Search(AVLMember root, const char* nik) {
   else return root;
 }
 
-int AVLMember_Update(AVLMember root, const char* nik, DataMember new_data) {
+int AVLMember_Update(AVLMember root, const char* nik, char* nama, char* no_hp, char* alamat) {
   if (root == NULL) return 0;
-  else if (strcmp(nik, root->data.nik) < 0) return AVLMember_Update(root->left, nik, new_data);
-  else if (strcmp(nik, root->data.nik) > 0) return AVLMember_Update(root->right, nik, new_data);
+  else if (strcmp(nik, root->data.nik) < 0) return AVLMember_Update(root->left, nik, nama, no_hp, alamat);
+  else if (strcmp(nik, root->data.nik) > 0) return AVLMember_Update(root->right, nik, nama, no_hp, alamat);
   else {
-    strcpy(root->data.alamat,new_data.alamat);
-    strcpy(root->data.nama,new_data.nama);
-    strcpy(root->data.no_hp,new_data.no_hp);
+    strcpy(root->data.alamat,nama);
+    strcpy(root->data.nama,no_hp);
+    strcpy(root->data.no_hp,alamat);
+    return 1;
   }
 }
 
