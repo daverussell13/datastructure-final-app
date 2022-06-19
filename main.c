@@ -99,7 +99,7 @@ int main () {
                 option_case_2 = template_fitur();
                 switch (option_case_2) {
                     case 1:
-                        /* code */
+                        displayPeople();
                         break;
 
                     case 2:
@@ -251,7 +251,21 @@ void load_data () {
             &tempPeminjam.tanggal_pengembalian.tm_year,
             &tempPeminjam.status
         ) != EOF) {
-        insertArrayPinjaman(&list_pinjaman, tempPeminjam);
+        insertArrayPinjaman(&list_pinjaman, inputPinjaman(
+            tempPeminjam.judul,
+            tempPeminjam.pengarang,
+            tempPeminjam.nik_peminjam,
+            tempPeminjam.tanggal_peminjaman.tm_mday,
+            tempPeminjam.tanggal_peminjaman.tm_mon,
+            tempPeminjam.tanggal_peminjaman.tm_year,
+            tempPeminjam.tanggal_pengembalian.tm_mday,
+            tempPeminjam.tanggal_pengembalian.tm_mon,
+            tempPeminjam.tanggal_pengembalian.tm_year,
+            tempPeminjam.tanggal_deadline.tm_mday,
+            tempPeminjam.tanggal_deadline.tm_mon,
+            tempPeminjam.tanggal_deadline.tm_year,
+            tempPeminjam.status
+        ));
         AVLMember peminjam = AVLMember_Search(list_member, tempPeminjam.nik_peminjam);
         addNoPinjaman(peminjam, no_pinjaman++);
     }
@@ -369,7 +383,8 @@ void updateBuku () {
 
 // Peminjam Buku
 void displayPeople () {
-
+    AVLMember_DisplayAllPeminjam(list_member, list_pinjaman);
+    enter getchar();
 }
 
 void pinjamBuku () {
@@ -494,7 +509,6 @@ void addMembership () {
     fclose(fp);
 
     printf("\n\nPendaftaran membership a.n %s, berhasil!\n", nama);
-    AVLMember_Display(list_member);
     enter getchar();
 }
 

@@ -61,6 +61,13 @@ void setDeadline(struct tm* deadline, int day, int month, int year) {
   time_t calendar_time = mktime(deadline);
 }
 
+void setTgl(struct tm* tgl, int day, int month, int year) {
+  tgl->tm_mday = day;
+  tgl->tm_mon = month;
+  tgl->tm_year = year;
+  time_t calendar_time = mktime(tgl);
+}
+
 void setDeadlineOneWeek(struct tm* deadline, int day, int month, int year) {
   deadline->tm_mday = day + 7;
   deadline->tm_mon = month;
@@ -131,6 +138,35 @@ Pinjaman newPinjaman (
     setDeadline(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
   }
   new_pinjaman.status = 'b';
+  return new_pinjaman;
+}
+
+Pinjaman inputPinjaman(
+  const char* judul,
+  const char* pengarang,
+  const char* nik,
+  int tgl_pnjm,
+  int bln_pnjm,
+  int thn_pnjm,
+  int tgl_kmbl,
+  int bln_kmbl,
+  int thn_kmbl,
+  int tgl_dl,
+  int bln_dl,
+  int thn_dl,
+  char status
+) {
+  Pinjaman new_pinjaman;
+  strcpy(new_pinjaman.judul,judul);
+  strcpy(new_pinjaman.pengarang,pengarang);
+  strcpy(new_pinjaman.nik_peminjam,nik);
+  memset(&new_pinjaman.tanggal_peminjaman,0,sizeof(struct tm));
+  memset(&new_pinjaman.tanggal_pengembalian,0,sizeof(struct tm));
+  memset(&new_pinjaman.tanggal_deadline,0,sizeof(struct tm));
+  setTgl(&new_pinjaman.tanggal_peminjaman,tgl_pnjm,bln_pnjm,thn_pnjm);
+  setTgl(&new_pinjaman.tanggal_pengembalian,tgl_kmbl,bln_kmbl,thn_kmbl);
+  setTgl(&new_pinjaman.tanggal_deadline,tgl_dl,bln_dl,thn_dl);
+  new_pinjaman.status = status;
   return new_pinjaman;
 }
 
