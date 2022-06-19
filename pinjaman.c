@@ -47,7 +47,11 @@ void freeArrayPinjaman(ArrayPinjaman *a) {
 
 void getCurrentDate(struct tm* current_date) {
   time_t t = time(NULL);
-  *current_date = *localtime(&t);
+  struct tm get_date = *localtime(&t);
+  current_date->tm_mday = get_date.tm_mday;
+  current_date->tm_mon = get_date.tm_mon;
+  current_date->tm_year = get_date.tm_year;
+  time_t calendar_time = mktime(current_date);
 }
 
 void setDeadline(struct tm* deadline, int day, int month, int year) {
@@ -65,6 +69,34 @@ void setDeadlineOneWeek(struct tm* deadline, int day, int month, int year) {
 }
 
 // Core functions
+int validateDate(int nDay, int nMonth, int nYear) {
+  struct tm tmDate;
+  memset(&tmDate,0,sizeof(struct tm));
+  tmDate.tm_mday = nDay;
+  tmDate.tm_mon = (nMonth - 1);
+  tmDate.tm_year = (nYear - 1900);
+
+  struct tm tmValidateDate;
+  memcpy(&tmValidateDate,&tmDate,sizeof(struct tm));
+
+  time_t timeCalendar = mktime(&tmValidateDate);
+  if(timeCalendar == (time_t)-1)
+      return 0;
+
+  return (
+      (tmDate.tm_mday == tmValidateDate.tm_mday) &&
+  (tmDate.tm_mon == tmValidateDate.tm_mon) &&
+  (tmDate.tm_year == tmValidateDate.tm_year) &&
+  (tmDate.tm_hour == tmValidateDate.tm_hour) &&
+  (tmDate.tm_min == tmValidateDate.tm_min) &&
+  (tmDate.tm_sec == tmValidateDate.tm_sec) );
+}
+
+int getDiffDay(struct tm time1, struct tm time2) {
+  time_t time1Calendar = mktime(&time1), time2Calendar = mktime(&time2);
+  return (int)difftime(time1Calendar,time2Calendar)/86400;
+}
+
 void printFormattedDate(struct tm* time) {
   char str[MxN];
   strftime(str,sizeof(str),"%A, %d %b %Y",time);
