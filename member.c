@@ -28,7 +28,14 @@ void insertArrayNoPinjaman(ArrayNoPinjaman *a, int element) {
   a->arr[a->used++] = element;
 }
 
-void deleteArrayNoPinjaman(ArrayNoPinjaman *a, int index) {
+void deleteArrayNoPinjaman(ArrayNoPinjaman *a, ull no_pinjaman) {
+  ull *temp = (ull*)malloc(a->size-1);
+  a->used--;
+  for (int i = 0; i < a->used; i++) {
+    if (a->arr[i] != no_pinjaman) {
+
+    }
+  }
 }
 
 void freeArray(ArrayNoPinjaman *a) {

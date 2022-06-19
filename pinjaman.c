@@ -53,6 +53,13 @@ void setDeadline(struct tm* deadline, int day, int month, int year) {
   time_t calendar_time = mktime(deadline);
 }
 
+void setDeadlineOneWeek(struct tm* deadline, int day, int month, int year) {
+  deadline->tm_mday = day + 7;
+  deadline->tm_mon = month;
+  deadline->tm_year = year;
+  time_t calendar_time = mktime(deadline);
+}
+
 // Core functions
 void printFormattedDate(struct tm* time) {
   char str[MxN];
@@ -76,7 +83,17 @@ Pinjaman newPinjaman (
   memset(&new_pinjaman.tanggal_pengembalian,0,sizeof(struct tm));
   memset(&new_pinjaman.tanggal_deadline,0,sizeof(struct tm));
   getCurrentDate(&new_pinjaman.tanggal_peminjaman);
-  setDeadline(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
+  if (!tanggal_deadline && !bulan_deadline && !tahun_deadline) {
+    setDeadlineOneWeek(
+      &new_pinjaman.tanggal_deadline,
+      new_pinjaman.tanggal_peminjaman.tm_mday,
+      new_pinjaman.tanggal_peminjaman.tm_mon,
+      new_pinjaman.tanggal_peminjaman.tm_year
+    );
+  }
+  else {
+    setDeadline(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
+  }
   new_pinjaman.status = 'b';
   return new_pinjaman;
 }

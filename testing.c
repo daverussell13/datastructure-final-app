@@ -11,7 +11,7 @@ ArrayPinjaman list_pinjaman;
 
 int main() {
   initArrayPinjaman(&list_pinjaman, 10);
-  insertArrayPinjaman(&list_pinjaman, newPinjaman("test","test","12031230123",30,6,2022));
+  insertArrayPinjaman(&list_pinjaman, newPinjaman("test","test","12031230123",0,0,0));
   for (int i = 0; i < list_pinjaman.used; i++) {
     printf (
       "%s %s %s\n",
