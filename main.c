@@ -18,6 +18,7 @@ void ascii_art ();
 void main_menu ();
 void book_management ();
 void people_management ();
+void history_management ();
 void default_input();
 void load_data ();
 
@@ -29,6 +30,7 @@ void updateBuku ();
 void displayPeople ();
 void pinjamBuku ();
 void returnBuku ();
+void reminder ();
 
 void memberManagement ();
 void addMembership ();
@@ -39,8 +41,8 @@ AVLBuku list_buku = NULL;
 AVLMember list_member = NULL;
 ArrayPinjaman list_pinjaman;
 
-int no_pinjaman = 0;
 const int denda = 5000;
+int no_pinjaman = 0;
 
 FILE *fp;
 
@@ -112,6 +114,10 @@ int main () {
                         break;
 
                     case 4:
+                        reminder();
+                        break;
+
+                    case 5:
                         cls
                         ascii_art();
                         memberManagement();
@@ -146,6 +152,10 @@ int main () {
                         default_input();
                         break;
                 }
+                break;
+
+            case 3:
+                history_management();
                 break;
 
             // Exit
@@ -207,6 +217,7 @@ void ascii_art () {
 void main_menu () {
     printf("1. Kelola Buku\n");
     printf("2. Kelola Peminjam\n");
+    printf("3. History Peminjaman\n");
     printf("0. EXIT\n");
     printf ("----------------------------------------------------------\n");
 }
@@ -224,10 +235,32 @@ void people_management () {
     printf("1.  List Peminjam\n");
     printf("2.  Peminjaman Buku\n");
     printf("3.  Pengembalian Buku\n");
-    printf("4.  Membership\n");
-    //printf("5. Reminder\n");
+    printf("4.  Reminder\n");
+    printf("5.  Membership\n");
     printf("00. AWAL\n");
     printf ("----------------------------------------------------------\n");
+}
+
+void history_management () {
+    int i, no = 1;
+    puts("History Peminjaman Buku");
+    puts("-----------------------");
+    for (i = 0; i < list_pinjaman.used; i++) {
+        if (list_pinjaman.arr[i].status == 'r') {
+            AVLMember peminjam = AVLMember_Search(list_member,list_pinjaman.arr[i].nik_peminjam);
+            printf("\n%d. Judul : %s\n", no++, list_pinjaman.arr[i].judul);
+            printf("   Pengarang : %s\n", list_pinjaman.arr[i].pengarang);
+            printf("   Peminjam : %s\n", peminjam->data.nama);
+            printf("   Tanggal Peminjaman : ");
+            printFormattedDate(&list_pinjaman.arr[i].tanggal_peminjaman);
+            printf("\n");
+            printf("   Tanggal Pengembalian : ");
+            printFormattedDate(&list_pinjaman.arr[i].tanggal_pengembalian);
+            printf("\n");
+        }
+    }
+    printf("\n");
+    enter getchar();
 }
 
 void template_akhir () {
@@ -408,6 +441,8 @@ void updateBuku () {
 
 // Peminjam Buku
 void displayPeople () {
+    cls
+    ascii_art();
     AVLMember_DisplayAllPeminjam(list_member, list_pinjaman);
     printf("\n");
     enter getchar();
@@ -457,8 +492,17 @@ void pinjamBuku () {
                 printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
                 printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
                 printf("Tahun Deadline\t\t: "); scanf("%d", &tahun_deadline); clear_buff();
-                dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
-                insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+                int validation = validateDate(tanggal_deadline, bulan_deadline, tahun_deadline);
+
+                if (validation == 0) {
+                    printf("\nTanggal yang diinput tidak tersedia di kalender!\n");
+                    enter getchar();
+                    return;
+                }
+                else {
+                    dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
+                    insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+                }
             }
         }
         else {
@@ -467,12 +511,31 @@ void pinjamBuku () {
             return;
         }
 
-        writeDataPinjaman();
+        // write data pinjaman
+        fp = fopen("dataPeminjam.txt", "w");
+        for (i = 0; i < list_pinjaman.used; i++) {
+            fprintf(
+                fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
+                list_pinjaman.arr[i].nik_peminjam,
+                list_pinjaman.arr[i].judul,
+                list_pinjaman.arr[i].pengarang,
+                list_pinjaman.arr[i].tanggal_peminjaman.tm_mday,
+                list_pinjaman.arr[i].tanggal_peminjaman.tm_mon,
+                list_pinjaman.arr[i].tanggal_peminjaman.tm_year,
+                list_pinjaman.arr[i].tanggal_deadline.tm_mday,
+                list_pinjaman.arr[i].tanggal_deadline.tm_mon,
+                list_pinjaman.arr[i].tanggal_deadline.tm_year,
+                list_pinjaman.arr[i].tanggal_pengembalian.tm_mday,
+                list_pinjaman.arr[i].tanggal_pengembalian.tm_mon,
+                list_pinjaman.arr[i].tanggal_pengembalian.tm_year,
+                list_pinjaman.arr[i].status
+            );
+        }
 
         fp = fopen("dataBuku.txt", "w");
         AVLBuku_WriteAllData(list_buku, fp);
         fclose(fp);
-        printf("Data peminjam berhasil ditambahkan!\n");
+        printf("\nData peminjam berhasil ditambahkan!\n");
         enter getchar();
     }
     else {
@@ -483,8 +546,10 @@ void pinjamBuku () {
 }
 
 void returnBuku () {
+    cls
     int i, arridx = 0;
     Pinjaman dataPinjaman;
+    ascii_art();
 
     // masukin nik
     char nik[MxN];
@@ -512,6 +577,7 @@ void returnBuku () {
             scanf("%llu",&no_pinjaman); clear_buff();
             if (no_pinjaman > 0 && no_pinjaman <= arridx) {
                 no_pinjaman--;
+
                 getCurrentDate(&list_pinjaman.arr[arr[no_pinjaman]].tanggal_pengembalian);
                 // cek apakah telat
                 int selisih_hari = getDiffDay(
@@ -519,11 +585,11 @@ void returnBuku () {
                     list_pinjaman.arr[arr[no_pinjaman]].tanggal_pengembalian
                 );
                 if (selisih_hari < 0) {
-                    printf("Dikenakan denda sebesar Rp. %d\n", selisih_hari*denda*-1);
+                    printf("\nDikenakan denda sebesar Rp. %d\n", selisih_hari*denda*-1);
                     enter getchar();
                 }
                 else {
-                    printf("Terimakasih telah mengembalikan tepat waktu :D\n");
+                    printf("\nTerimakasih telah mengembalikan tepat waktu :D\n");
                     enter getchar();
                 }
                 // ubah status, quantity, writing data
@@ -540,19 +606,55 @@ void returnBuku () {
                 fclose(fp);
             }
             else {
-                puts("Invalid input");
+                puts("\nInvalid input");
                 enter getchar();
             }
         }
         else {
-            puts("NIK tersebut tidak memiliki status peminjaman");
+            puts("\nNIK tersebut tidak memiliki status peminjaman");
             enter getchar();
         }
     }
     else {
-        puts("Data tidak ditemukan");
+        puts("\nData tidak ditemukan");
         enter getchar();
     }
+}
+
+void reminder() {
+    cls
+
+    int i, idx = 0, selisih_hari;
+    puts("Reminder");
+    puts("===================");
+    Pinjaman dataPinjaman[list_pinjaman.used];
+    Pinjaman tempPinjaman;
+    struct tm this_day;
+    getCurrentDate(&this_day);
+    for (i = 0; i < list_pinjaman.used; i++) {
+        tempPinjaman = list_pinjaman.arr[i];
+        if (tempPinjaman.status == 'b') {
+            // h-2
+            selisih_hari = getDiffDay(tempPinjaman.tanggal_deadline, this_day);
+            if (selisih_hari <= 2) {
+                dataPinjaman[idx++] = tempPinjaman;
+            }
+        }
+    }
+    for (i = 0; i < idx; i++) {
+        AVLMember peminjam = AVLMember_Search(list_member, dataPinjaman[i].nik_peminjam);
+        printf("\nNo %d.\n",i+1);
+        printf("Judul : %s\n",dataPinjaman[i].judul);
+        printf("Pengarang : %s\n",dataPinjaman[i].pengarang);
+        printf("Peminjam : %s\n",peminjam->data.nama);
+        printf("Deadline : "); printFormattedDate(&dataPinjaman[i].tanggal_deadline);
+        selisih_hari = getDiffDay(dataPinjaman[i].tanggal_deadline, this_day);
+        if (selisih_hari > 0) printf(" (%d Hari lagi)\n", selisih_hari);
+        else if (!selisih_hari) printf(" (Hari Terakhir)\n");
+        else printf(" (Terlambat)\n");
+        printf("\n");
+    }
+    enter getchar();
 }
 
 // Membership
