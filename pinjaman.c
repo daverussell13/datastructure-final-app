@@ -1,8 +1,12 @@
-#define MxN 255
-#define ull unsigned long long
+#ifndef PINJAMAN_INCLUDED
+#define PINJAMAN_INCLUDED
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+#define MxN 255
+#define ull unsigned long long
 
 typedef struct {
   char judul[MxN];
@@ -97,3 +101,5 @@ Pinjaman newPinjaman (
   new_pinjaman.status = 'b';
   return new_pinjaman;
 }
+
+#endif

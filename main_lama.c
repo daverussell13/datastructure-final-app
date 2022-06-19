@@ -346,60 +346,20 @@ void displayPeople () {
 
 }
 
-// void pinjamBuku () {
-//     cls
-//     char nik[MxN];
+void pinjamBuku () {
+    cls
+    char nik[MxN];
 
-//     ascii_art();
-//     printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
-//     AVLMember nyari = AVLMember_Search(list_member, nik);
+    ascii_art();
+    printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
+    AVLMember nyari = AVLMember_Search(list_member, nik);
 
-//     if (nyari) {
-//         cls
-//         int option;
-//         char judul[MxN];
-//         char pengarang[MxN];
+    if (nyari) {
+        char judul[MxN];
+        char pengarang[MxN];
+    }
 
-//         ascii_art();
-//         printf("Judul Buku\t\t: "); scanf("%[^\n]", judul); clear_buff();
-//         printf("Pengarang\t\t: "); scanf("%[^\n]", pengarang); clear_buff();
-//         printf("\n\nDeadline :\n");
-//         printf("1. Set Otomatis (7 hari)\n");
-//         printf("2. Set Manual\n");
-//         symbl scanf("%d", &option);
-
-//         if (option == 1) {
-//             insertArrayPinjaman(&list_pinjaman, newPinjaman(judul, pengarang, nik, 0, 0, 0));
-//         }
-//         else {
-//             cls
-//             int tanggal_deadline;
-//             int bulan_deadline;
-//             int tahun_deadline;
-//             ascii_art();
-//             printf("Judul Buku\t\t: %s\n", judul);
-//             printf("Pengarang\t\t: %s\n", pengarang);
-//             printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
-//             printf("Tahun Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
-//             printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
-//             insertArrayPinjaman(
-//                 &list_pinjaman,
-//                 newPinjaman(
-//                     judul,
-//                     pengarang,
-//                     nik,
-//                     tanggal_deadline,
-//                     bulan_deadline,
-//                     tahun_deadline
-//                 )
-//             );
-//         }
-
-//         //fp = fopen("dataPeminjam.txt", "w");
-
-//     }
-
-// }
+}
 
 void returnBuku () {
 
@@ -434,7 +394,9 @@ void addMembership () {
     fclose(fp);
 
     printf("\n\nPendaftaran membership a.n %s, berhasil!\n", nama);
+
     AVLMember_Display(list_member);
+
     enter getchar();
 }
 

@@ -1,3 +1,6 @@
+#ifndef MEMBER_INCLUDED
+#define MEMBER_INLCUDED
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -206,3 +209,12 @@ int AVLMember_Update(AVLMember root, const char* nik, DataMember new_data) {
   }
 }
 
+void AVLMember_WriteAllData(AVLMember root, FILE *fp) {
+  if (root) {
+    AVLMember_WriteAllData(root->left, fp);
+    fprintf(fp,"%s#%s#%s#%s\n", root->data.nama, root->data.no_hp, root->data.alamat, root->data.nik);
+    AVLMember_WriteAllData(root->right, fp);
+  }
+}
+
+#endif
