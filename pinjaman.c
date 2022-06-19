@@ -8,7 +8,6 @@ typedef struct {
   char judul[MxN];
   char pengarang[MxN];
   char nik_peminjam[MxN];
-  ull no_pinjaman;
   struct tm tanggal_peminjaman;
   struct tm tanggal_pengembalian;
   struct tm tanggal_deadline;
@@ -27,7 +26,7 @@ void initArrayPinjaman(ArrayPinjaman* a, size_t initialSize) {
   a->size = initialSize;
 }
 
-void insertArray(ArrayPinjaman* a, Pinjaman element) {
+void insertArrayPinjaman(ArrayPinjaman* a, Pinjaman element) {
   if (a->used == a->size) {
     a->size *= 2;
     a->arr = (Pinjaman*)realloc(a->arr, a->size * sizeof(Pinjaman));
@@ -35,7 +34,7 @@ void insertArray(ArrayPinjaman* a, Pinjaman element) {
   a->arr[a->used++] = element;
 }
 
-void freeArray(ArrayPinjaman *a) {
+void freeArrayPinjaman(ArrayPinjaman *a) {
   free(a->arr);
   a->arr = NULL;
   a->used = a->size = 0;
@@ -53,11 +52,11 @@ void createDeadline(struct tm* deadline, int date, int month, int year) {
   deadline->tm_year = (year - 1900);
 }
 
+// Core functions
 Pinjaman newPinjaman (
   const char* judul,
   const char* pengarang,
   const char* nik,
-  ull no,
   int tanggal_deadline,
   int bulan_deadline,
   int tahun_deadline
@@ -66,8 +65,8 @@ Pinjaman newPinjaman (
   strcpy(new_pinjaman.judul,judul);
   strcpy(new_pinjaman.pengarang,pengarang);
   strcpy(new_pinjaman.nik_peminjam,nik);
-  new_pinjaman.no_pinjaman = no;
   getCurrentDate(&new_pinjaman.tanggal_peminjaman);
   memset(&new_pinjaman.tanggal_pengembalian,0,sizeof(struct tm));
   createDate(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
+  return new_pinjaman;
 }

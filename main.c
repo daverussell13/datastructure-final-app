@@ -37,6 +37,7 @@ void updateMembership ();
 
 AVLBuku list_buku = NULL;
 ArrayPinjaman list_pinjaman;
+ull no_pinjaman = 0;
 
 FILE *fp;
 
