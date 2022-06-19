@@ -39,6 +39,8 @@ AVLBuku list_buku = NULL;
 AVLMember list_member = NULL;
 ArrayPinjaman list_pinjaman;
 
+int no_pinjaman = 0;
+
 FILE *fp;
 
 int main () {
@@ -101,7 +103,7 @@ int main () {
                         break;
 
                     case 2:
-                        /* code */
+                        pinjamBuku();
                         break;
 
                     case 3:
@@ -119,11 +121,11 @@ int main () {
                                 break;
 
                             case 2:
-                                /* code */
+                                deleteMembership();
                                 break;
 
                             case 3:
-                                /* code */
+                                updateMembership();
                                 break;
 
                             case 00:
@@ -218,6 +220,7 @@ void default_input () {
 void load_data () {
     DataBuku tempBuku;
     DataMember tempMember;
+    Pinjaman tempPeminjam;
     initArrayPinjaman(&list_pinjaman, 10);
 
     fp = fopen("dataBuku.txt", "r");
@@ -227,7 +230,30 @@ void load_data () {
 
     fp = fopen("dataMember.txt", "r");
     while (fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^\n]\n", tempMember.nama, tempMember.no_hp, tempMember.alamat, tempMember.nik) != EOF) {
-        AVLMember_Insert(&list_member, tempMember);
+        AVLMember_Insert(&list_member, newDataMember(tempMember.nama,tempMember.no_hp,tempMember.alamat,tempMember.nik));
+    }
+
+    fp = fopen("dataPeminjam.txt", "r");
+    while (
+        fscanf (
+            fp, "%[^#]#%[^#]#%[^#]#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c ",
+            tempPeminjam.nik_peminjam,
+            tempPeminjam.judul,
+            tempPeminjam.pengarang,
+            &tempPeminjam.tanggal_peminjaman.tm_mday,
+            &tempPeminjam.tanggal_peminjaman.tm_mon,
+            &tempPeminjam.tanggal_peminjaman.tm_year,
+            &tempPeminjam.tanggal_deadline.tm_mday,
+            &tempPeminjam.tanggal_deadline.tm_mon,
+            &tempPeminjam.tanggal_deadline.tm_year,
+            &tempPeminjam.tanggal_pengembalian.tm_mday,
+            &tempPeminjam.tanggal_pengembalian.tm_mon,
+            &tempPeminjam.tanggal_pengembalian.tm_year,
+            &tempPeminjam.status
+        ) != EOF) {
+        insertArrayPinjaman(&list_pinjaman, tempPeminjam);
+        AVLMember peminjam = AVLMember_Search(list_member, tempPeminjam.nik_peminjam);
+        addNoPinjaman(peminjam, no_pinjaman++);
     }
 
     fclose(fp);
@@ -346,60 +372,94 @@ void displayPeople () {
 
 }
 
-// void pinjamBuku () {
-//     cls
-//     char nik[MxN];
+void pinjamBuku () {
+    cls
+    int i;
+    char nik[MxN];
+    Pinjaman dataPinjaman;
 
-//     ascii_art();
-//     printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
-//     AVLMember nyari = AVLMember_Search(list_member, nik);
+    ascii_art();
+    printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
+    AVLMember orang = AVLMember_Search(list_member, nik);
 
-//     if (nyari) {
-//         cls
-//         int option;
-//         char judul[MxN];
-//         char pengarang[MxN];
+    if (orang) {
+        cls
+        int option;
+        char judul[MxN];
+        char pengarang[MxN];
 
-//         ascii_art();
-//         printf("Judul Buku\t\t: "); scanf("%[^\n]", judul); clear_buff();
-//         printf("Pengarang\t\t: "); scanf("%[^\n]", pengarang); clear_buff();
-//         printf("\n\nDeadline :\n");
-//         printf("1. Set Otomatis (7 hari)\n");
-//         printf("2. Set Manual\n");
-//         symbl scanf("%d", &option);
+        ascii_art();
+        printf("Judul Buku\t\t: "); scanf("%[^\n]", judul); clear_buff();
+        printf("Pengarang\t\t: "); scanf("%[^\n]", pengarang); clear_buff();
+        AVLBuku buku = AVLBuku_Search(list_buku, judul, pengarang);
 
-//         if (option == 1) {
-//             insertArrayPinjaman(&list_pinjaman, newPinjaman(judul, pengarang, nik, 0, 0, 0));
-//         }
-//         else {
-//             cls
-//             int tanggal_deadline;
-//             int bulan_deadline;
-//             int tahun_deadline;
-//             ascii_art();
-//             printf("Judul Buku\t\t: %s\n", judul);
-//             printf("Pengarang\t\t: %s\n", pengarang);
-//             printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
-//             printf("Tahun Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
-//             printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
-//             insertArrayPinjaman(
-//                 &list_pinjaman,
-//                 newPinjaman(
-//                     judul,
-//                     pengarang,
-//                     nik,
-//                     tanggal_deadline,
-//                     bulan_deadline,
-//                     tahun_deadline
-//                 )
-//             );
-//         }
+        if (buku && buku->data.qty) {
+            addNoPinjaman(orang, no_pinjaman++);
+            buku->data.qty--;
+            printf("\n\nDeadline :\n");
+            printf("1. Set Otomatis (7 hari)\n");
+            printf("2. Set Manual\n");
+            symbl scanf("%d", &option); clear_buff();
 
-//         //fp = fopen("dataPeminjam.txt", "w");
+            if (option == 1) {
+                dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
+                insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+                printf("helo \n");
+            }
+            else {
+                cls
+                int tanggal_deadline;
+                int bulan_deadline;
+                int tahun_deadline;
+                ascii_art();
+                printf("Judul Buku\t\t: %s\n", judul);
+                printf("Pengarang\t\t: %s\n", pengarang);
+                printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
+                printf("Tahun Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
+                printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
+                dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
+                insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+            }
+        }
+        else {
+            printf("\nBuku tidak ditemukan!\n");
+            enter getchar();
+            return;
+        }
 
-//     }
+        // write data pinjaman
+        fp = fopen("dataPeminjam.txt", "w");
+        for (i = 0; i < list_pinjaman.used; i++) {
+            fprintf(
+                fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
+                list_pinjaman.arr[i].nik_peminjam,
+                list_pinjaman.arr[i].judul,
+                list_pinjaman.arr[i].pengarang,
+                dataPinjaman.tanggal_peminjaman.tm_mday,
+                dataPinjaman.tanggal_peminjaman.tm_mon,
+                dataPinjaman.tanggal_peminjaman.tm_year,
+                dataPinjaman.tanggal_deadline.tm_mday,
+                dataPinjaman.tanggal_deadline.tm_mon,
+                dataPinjaman.tanggal_deadline.tm_year,
+                dataPinjaman.tanggal_pengembalian.tm_mday,
+                dataPinjaman.tanggal_pengembalian.tm_mon,
+                dataPinjaman.tanggal_pengembalian.tm_year,
+                dataPinjaman.status
+            );
+        }
 
-// }
+        fp = fopen("dataBuku.txt", "w");
+        AVLBuku_WriteAllData(list_buku, fp);
+        fclose(fp);
+        printf("Data peminjam berhasil ditambahkan!\n");
+        enter getchar();
+    }
+    else {
+        printf("\nData tidak ditemukan!\n");
+        enter getchar();
+        return;
+    }
+}
 
 void returnBuku () {
 
@@ -439,9 +499,79 @@ void addMembership () {
 }
 
 void deleteMembership () {
+    cls
+    char nik[MxN];
 
+    ascii_art();
+    printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
+    AVLMember nyari = AVLMember_Search(list_member, nik);
+
+    if (nyari) {
+        printf("\nData a.n %s, berhasil dihapus!\n", nyari->data.nama);
+        AVLMember_Delete(&list_member, nik);
+        fp = fopen("dataMember.txt", "w");
+        AVLMember_WriteAllData(list_member, fp);
+        fclose(fp);
+        enter getchar();
+    }
+    else {
+        printf("\nData tidak ditemukan!\n");
+        enter getchar();
+        return;
+    }
 }
 
 void updateMembership () {
+    cls
+    char nik[MxN];
 
+    ascii_art();
+    printf("Input NIK\t\t: "); scanf("%s", nik); clear_buff();
+    AVLMember nyari = AVLMember_Search(list_member, nik);
+
+    if (nyari) {
+        int option;
+        char nama[MxN];
+        char no_hp[MxN];
+        char alamat[MxN];
+
+        printf("\nData yang ingin diubah?\n");
+        printf("1. Nama\n");
+        printf("2. No Hp\n");
+        printf("3. Alamat\n");
+        symbl scanf("%d", &option); clear_buff();
+        printf("\n");
+
+        switch (option) {
+            case 1:
+                printf("Nama Baru\t: "); scanf("%[^\n]", nama); clear_buff();
+                AVLMember_Update(list_member, nik, nama, nyari->data.no_hp, nyari->data.alamat);
+                break;
+
+            case 2:
+                printf("No HP Baru\t: "); scanf("%s", no_hp); clear_buff();
+                AVLMember_Update(list_member, nik, nyari->data.nama, no_hp, nyari->data.alamat);
+                break;
+
+            case 3:
+                printf("Alamat Baru\t: "); scanf("%[^\n]", alamat); clear_buff();
+                AVLMember_Update(list_member, nik, nyari->data.nama, nyari->data.no_hp, alamat);
+                break;
+
+            default:
+                default_input();
+                break;
+        }
+
+        fp = fopen("dataMember.txt", "w");
+        AVLMember_WriteAllData(list_member, fp);
+        fclose(fp);
+        printf("\nData member berhasil diupdate!\n");
+        enter getchar();
+    }
+    else {
+        printf("\nData tidak ditemukan!\n");
+        enter getchar();
+        return;
+    }
 }
