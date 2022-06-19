@@ -157,6 +157,28 @@ AVLMember insertNodeMember(AVLMember root, DataMember data) {
   return selfBalanceMember(root);
 }
 
+AVLMember deleteNodeMember(AVLMember root, const char* nik) {
+  if (root == NULL) return NULL;
+  else if (strcmp(nik, root->data.nik) < 0) root->left = deleteNodeMember(root->left, nik);
+  else if (strcmp(nik, root->data.nik) > 0) root->right = deleteNodeMember(root->right, nik);
+  else {
+    // 1 child or leaf
+    if (root->left == NULL || root->right == NULL) {
+      AVLMember temp = root->right ? root->right : root->left;
+      free(root);
+      root = temp;
+      if (!root) return root;
+    }
+    // 2 child
+    else {
+      AVLMember pred = getPredecessorMember(root);
+      root->data = pred->data;
+      root->left = deleteNodeMember(root->left, pred->data.nik);
+    }
+  }
+  return selfBalanceMember(root);
+}
+
 // Core Functions
 DataMember newDataMember (
   const char* nama,
@@ -182,6 +204,8 @@ void removeNoPinjaman(AVLMember member, ull no_pinjaman) {
 }
 
 void AVLMember_Insert(AVLMember* root, DataMember data) { *root = insertNodeMember(*root, data); }
+
+void AVLMember_Delete(AVLMember* root, const char* nik) { *root = deleteNodeMember(*root, nik); }
 
 void AVLMember_Display(AVLMember root) {
   if (root) {
