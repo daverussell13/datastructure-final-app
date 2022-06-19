@@ -208,12 +208,18 @@ void AVLMember_Insert(AVLMember* root, DataMember data) { *root = insertNodeMemb
 void AVLMember_Delete(AVLMember* root, const char* nik) { *root = deleteNodeMember(*root, nik); }
 
 void printDataPinjaman(DataMember member_data, ArrayPinjaman list_pinjaman) {
-  printf("\n%s - %s\n",member_data.nik, member_data.nama);
-  puts("=============================");
-  puts("List Pinjaman : ");
+  int arridx = 0;
+  ull arr[member_data.list_pinjaman.used+1];
   for (int i = 0; i < member_data.list_pinjaman.used; i++) {
     Pinjaman dataPinjaman = list_pinjaman.arr[member_data.list_pinjaman.arr[i]];
-    if (dataPinjaman.status != 'r') {
+    if (dataPinjaman.status == 'b') arr[arridx++] = member_data.list_pinjaman.arr[i];
+  }
+  if (arridx) {
+    printf("\n%s - %s\n",member_data.nik, member_data.nama);
+    puts("=============================");
+    puts("List Pinjaman : ");
+    for (int i = 0; i < arridx; i++) {
+      Pinjaman dataPinjaman = list_pinjaman.arr[arr[i]];
       printf("%d. %s - ",i+1,dataPinjaman.judul);
       printFormattedDate(&dataPinjaman.tanggal_deadline);
       printf("\n");

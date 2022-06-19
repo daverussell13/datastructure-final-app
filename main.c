@@ -40,6 +40,7 @@ AVLMember list_member = NULL;
 ArrayPinjaman list_pinjaman;
 
 int no_pinjaman = 0;
+const int denda = 5000;
 
 FILE *fp;
 
@@ -107,7 +108,7 @@ int main () {
                         break;
 
                     case 3:
-                        /* code */
+                        returnBuku();
                         break;
 
                     case 4:
@@ -169,6 +170,30 @@ int main () {
 void clear_buff() {
   char c;
   while ((c = getchar()) != '\n' && c != EOF) {};
+}
+
+void writeDataPinjaman() {
+    int i;
+    fp = fopen("dataPeminjam.txt", "w");
+    for (i = 0; i < list_pinjaman.used; i++) {
+        fprintf(
+            fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
+            list_pinjaman.arr[i].nik_peminjam,
+            list_pinjaman.arr[i].judul,
+            list_pinjaman.arr[i].pengarang,
+            list_pinjaman.arr[i].tanggal_peminjaman.tm_mday,
+            list_pinjaman.arr[i].tanggal_peminjaman.tm_mon,
+            list_pinjaman.arr[i].tanggal_peminjaman.tm_year,
+            list_pinjaman.arr[i].tanggal_deadline.tm_mday,
+            list_pinjaman.arr[i].tanggal_deadline.tm_mon,
+            list_pinjaman.arr[i].tanggal_deadline.tm_year,
+            list_pinjaman.arr[i].tanggal_pengembalian.tm_mday,
+            list_pinjaman.arr[i].tanggal_pengembalian.tm_mon,
+            list_pinjaman.arr[i].tanggal_pengembalian.tm_year,
+            list_pinjaman.arr[i].status
+        );
+    }
+    fclose(fp);
 }
 
 void ascii_art () {
@@ -384,6 +409,7 @@ void updateBuku () {
 // Peminjam Buku
 void displayPeople () {
     AVLMember_DisplayAllPeminjam(list_member, list_pinjaman);
+    printf("\n");
     enter getchar();
 }
 
@@ -419,7 +445,6 @@ void pinjamBuku () {
             if (option == 1) {
                 dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
                 insertArrayPinjaman(&list_pinjaman, dataPinjaman);
-                printf("helo \n");
             }
             else {
                 cls
@@ -430,8 +455,8 @@ void pinjamBuku () {
                 printf("Judul Buku\t\t: %s\n", judul);
                 printf("Pengarang\t\t: %s\n", pengarang);
                 printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
-                printf("Tahun Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
                 printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
+                printf("Tahun Deadline\t\t: "); scanf("%d", &tahun_deadline); clear_buff();
                 dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
                 insertArrayPinjaman(&list_pinjaman, dataPinjaman);
             }
@@ -442,26 +467,7 @@ void pinjamBuku () {
             return;
         }
 
-        // write data pinjaman
-        fp = fopen("dataPeminjam.txt", "w");
-        for (i = 0; i < list_pinjaman.used; i++) {
-            fprintf(
-                fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
-                list_pinjaman.arr[i].nik_peminjam,
-                list_pinjaman.arr[i].judul,
-                list_pinjaman.arr[i].pengarang,
-                dataPinjaman.tanggal_peminjaman.tm_mday,
-                dataPinjaman.tanggal_peminjaman.tm_mon,
-                dataPinjaman.tanggal_peminjaman.tm_year,
-                dataPinjaman.tanggal_deadline.tm_mday,
-                dataPinjaman.tanggal_deadline.tm_mon,
-                dataPinjaman.tanggal_deadline.tm_year,
-                dataPinjaman.tanggal_pengembalian.tm_mday,
-                dataPinjaman.tanggal_pengembalian.tm_mon,
-                dataPinjaman.tanggal_pengembalian.tm_year,
-                dataPinjaman.status
-            );
-        }
+        writeDataPinjaman();
 
         fp = fopen("dataBuku.txt", "w");
         AVLBuku_WriteAllData(list_buku, fp);
@@ -477,7 +483,67 @@ void pinjamBuku () {
 }
 
 void returnBuku () {
+    int i, arridx = 0;
+    Pinjaman dataPinjaman;
 
+    // masukin nik
+    char nik[MxN];
+    printf("Masukan NIK : ");
+    scanf("%s",nik); clear_buff();
+
+    // tampilin orang minjem apa aja yang blom dibalikin
+    AVLMember peminjam = AVLMember_Search(list_member,nik);
+    if (peminjam) {
+        ull arr[peminjam->data.list_pinjaman.used+1];
+        for (i = 0; i < peminjam->data.list_pinjaman.used; i++) {
+            dataPinjaman = list_pinjaman.arr[peminjam->data.list_pinjaman.arr[i]];
+            if (dataPinjaman.status == 'b') arr[arridx++] = peminjam->data.list_pinjaman.arr[i];
+        }
+        if (arridx) {
+            for (i = 0; i < arridx; i++) {
+                Pinjaman dataPinjaman = list_pinjaman.arr[arr[i]];
+                printf("%d. %s - ",i+1,dataPinjaman.judul);
+                printFormattedDate(&dataPinjaman.tanggal_deadline);
+                printf("\n");
+            }
+            // masukan nomor pinjaman yang ingin dikembalikan
+            ull no_pinjaman;
+            printf("\nMasukan no pinjaman : ");
+            scanf("%llu",&no_pinjaman); clear_buff();
+            if (no_pinjaman > 0 && no_pinjaman <= arridx) {
+                no_pinjaman--;
+                getCurrentDate(&list_pinjaman.arr[arr[no_pinjaman]].tanggal_pengembalian);
+                // cek apakah telat
+                int selisih_hari = getDiffDay(
+                    list_pinjaman.arr[arr[no_pinjaman]].tanggal_deadline,
+                    list_pinjaman.arr[arr[no_pinjaman]].tanggal_pengembalian
+                );
+                if (selisih_hari < 0) {
+                    printf("Dikenakan denda sebesar Rp. %d\n", selisih_hari*denda*-1);
+                    enter getchar();
+                }
+                else {
+                    printf("Terimakasih telah mengembalikan tepat waktu :D\n");
+                    enter getchar();
+                }
+                // ubah status
+                list_pinjaman.arr[arr[no_pinjaman]].status = 'r';
+                writeDataPinjaman();
+            }
+            else {
+                puts("Invalid input");
+                enter getchar();
+            }
+        }
+        else {
+            puts("NIK tersebut tidak memiliki status peminjaman");
+            enter getchar();
+        }
+    }
+    else {
+        puts("Data tidak ditemukan");
+        enter getchar();
+    }
 }
 
 // Membership
