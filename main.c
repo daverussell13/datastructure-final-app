@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
 
 #include "buku.c"
+#include "member.c"
 #include "pinjaman.c"
 
 #define MxN 255
@@ -36,8 +36,8 @@ void deleteMembership ();
 void updateMembership ();
 
 AVLBuku list_buku = NULL;
+AVLMember list_member = NULL;
 ArrayPinjaman list_pinjaman;
-ull no_pinjaman = 0;
 
 FILE *fp;
 
@@ -143,7 +143,6 @@ int main () {
                         default_input();
                         break;
                 }
-                getchar();
                 break;
 
             // Exit
@@ -213,16 +212,24 @@ void default_input () {
     cls
     ascii_art();
     printf("Invalid Input\n\n");
-    enter getch();
+    enter
 }
 
 void load_data () {
-    initArrayPinjaman(&list_pinjaman,10);
-    DataBuku temp;
+    DataBuku tempBuku;
+    DataMember tempMember;
+    initArrayPinjaman(&list_pinjaman, 10);
+
     fp = fopen("dataBuku.txt", "r");
-    while (fscanf(fp,"%[^#]#%[^#]#%d\n", temp.judul, temp.pengarang, &temp.qty) != EOF) {
-        AVLBuku_Insert(&list_buku, temp);
+    while (fscanf(fp,"%[^#]#%[^#]#%d\n", tempBuku.judul, tempBuku.pengarang, &tempBuku.qty) != EOF) {
+        AVLBuku_Insert(&list_buku, tempBuku);
     }
+
+    fp = fopen("dataMember.txt", "r");
+    while (fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^\n]\n", tempMember.nama, tempMember.no_hp, tempMember.alamat, tempMember.nik) != EOF) {
+        AVLMember_Insert(&list_member, tempMember);
+    }
+
     fclose(fp);
 }
 
@@ -243,7 +250,6 @@ void displayBuku () {
 
 void insertBuku () {
     cls
-
     char judul [MxN];
     char pengarang [MxN];
     const int qty;
@@ -341,6 +347,17 @@ void displayPeople () {
 }
 
 void pinjamBuku () {
+    cls
+    char nik[MxN];
+
+    ascii_art();
+    printf("Input NIK\t: "); scanf("%s", nik); clear_buff();
+    AVLMember nyari = AVLMember_Search(list_member, nik);
+
+    if (nyari) {
+        char judul[MxN];
+        char pengarang[MxN];
+    }
 
 }
 
@@ -350,9 +367,9 @@ void returnBuku () {
 
 // Membership
 void memberManagement () {
-    printf("1. Tambah Membership\n");
-    printf("2. Hapus Membership\n");
-    printf("3. Update Membership\n");
+    printf("1.  Tambah Membership\n");
+    printf("2.  Hapus Membership\n");
+    printf("3.  Update Membership\n");
     printf("88. Kembali\n");
     printf ("----------------------------------------------------------\n");
 }
@@ -361,14 +378,26 @@ void addMembership () {
     cls
 
     char nama [MxN];
-    char phone [MxN];
+    char no_hp [MxN];
     char alamat [MxN];
+    char nik [MxN];
 
     ascii_art();
-    printf("Nama\t\t: "); scanf("%[^\n]", nama);
-    printf("No. HP\t\t: "); scanf("%[^\n]", phone);
-    printf("Alamat\t\t: "); scanf("%[^\n]", alamat);
-    template_akhir();
+    printf("Nama\t\t: "); scanf("%[^\n]", nama); clear_buff();
+    printf("No. HP\t\t: "); scanf("%[^\n]", no_hp); clear_buff();
+    printf("Alamat\t\t: "); scanf("%[^\n]", alamat); clear_buff();
+    printf("NIK\t\t: "); scanf("%[^\n]", nik); clear_buff();
+
+    AVLMember_Insert(&list_member, newDataMember(nama, no_hp, alamat, nik));
+    fp = fopen("dataMember.txt", "w");
+    AVLMember_WriteAllData(list_member, fp);
+    fclose(fp);
+    
+    printf("\n\nPendaftaran membership a.n %s, berhasil!\n", nama);
+
+    AVLMember_Display(list_member);
+
+    enter getchar();
 }
 
 void deleteMembership () {

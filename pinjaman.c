@@ -11,6 +11,7 @@ typedef struct {
   struct tm tanggal_peminjaman;
   struct tm tanggal_pengembalian;
   struct tm tanggal_deadline;
+  char status; // r = returned, b = borrowed
 } Pinjaman;
 
 // Dynamic array
@@ -45,14 +46,20 @@ void getCurrentDate(struct tm* current_date) {
   *current_date = *localtime(&t);
 }
 
-void createDeadline(struct tm* deadline, int date, int month, int year) {
-  memset(&deadline,0,sizeof(struct tm));
-  deadline->tm_mday = date;
+void setDeadline(struct tm* deadline, int day, int month, int year) {
+  deadline->tm_mday = day;
   deadline->tm_mon = (month - 1);
   deadline->tm_year = (year - 1900);
+  time_t calendar_time = mktime(deadline);
 }
 
 // Core functions
+void printFormattedDate(struct tm* time) {
+  char str[MxN];
+  strftime(str,sizeof(str),"%A, %d %b %Y",time);
+  printf("%s",str);
+}
+
 Pinjaman newPinjaman (
   const char* judul,
   const char* pengarang,
@@ -65,8 +72,11 @@ Pinjaman newPinjaman (
   strcpy(new_pinjaman.judul,judul);
   strcpy(new_pinjaman.pengarang,pengarang);
   strcpy(new_pinjaman.nik_peminjam,nik);
-  getCurrentDate(&new_pinjaman.tanggal_peminjaman);
+  memset(&new_pinjaman.tanggal_peminjaman,0,sizeof(struct tm));
   memset(&new_pinjaman.tanggal_pengembalian,0,sizeof(struct tm));
-  createDate(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
+  memset(&new_pinjaman.tanggal_deadline,0,sizeof(struct tm));
+  getCurrentDate(&new_pinjaman.tanggal_peminjaman);
+  setDeadline(&new_pinjaman.tanggal_deadline, tanggal_deadline, bulan_deadline, tahun_deadline);
+  new_pinjaman.status = 'b';
   return new_pinjaman;
 }

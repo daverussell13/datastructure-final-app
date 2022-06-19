@@ -9,11 +9,40 @@
 #define ull unsigned long long
 
 typedef struct {
+  ull *arr;
+  size_t used;
+  size_t size;
+} ArrayNoPinjaman;
+
+void initArrayNoPinjaman(ArrayNoPinjaman *a, size_t initialSize) {
+  a->arr = (ull*)malloc(initialSize * sizeof(ull));
+  a->used = 0;
+  a->size = initialSize;
+}
+
+void insertArrayNoPinjaman(ArrayNoPinjaman *a, int element) {
+  if (a->used == a->size) {
+    a->size *= 2;
+    a->arr = (ull*)realloc(a->arr, a->size * sizeof(ull));
+  }
+  a->arr[a->used++] = element;
+}
+
+void deleteArrayNoPinjaman(ArrayNoPinjaman *a, int index) {
+}
+
+void freeArray(ArrayNoPinjaman *a) {
+  free(a->arr);
+  a->arr = NULL;
+  a->used = a->size = 0;
+}
+
+typedef struct {
   char nama[MxN];
   char no_hp[MxN];
   char alamat[MxN];
   char nik[MxN];
-
+  ArrayNoPinjaman list_pinjaman;
 } DataMember;
 
 typedef struct node_member {
