@@ -683,13 +683,19 @@ void addMembership () {
     printf("Alamat\t\t: "); scanf("%[^\n]", alamat); clear_buff();
     printf("NIK\t\t: "); scanf("%[^\n]", nik); clear_buff();
 
-    AVLMember_Insert(&list_member, newDataMember(nama, no_hp, alamat, nik));
-    fp = fopen("dataMember.txt", "w");
-    AVLMember_WriteAllData(list_member, fp);
-    fclose(fp);
+    if (!AVLMember_Search(list_member, nik)) {
+        AVLMember_Insert(&list_member, newDataMember(nama, no_hp, alamat, nik));
+        fp = fopen("dataMember.txt", "w");
+        AVLMember_WriteAllData(list_member, fp);
+        fclose(fp);
 
-    printf("\n\nPendaftaran membership a.n %s, berhasil!\n", nama);
-    enter getchar();
+        printf("\n\nPendaftaran membership a.n %s, berhasil!\n", nama);
+        enter getchar();
+    }
+    else {
+        printf("\n\nNIK telah terdaftar!\n");
+        enter getchar();
+    }
 }
 
 void deleteMembership () {
