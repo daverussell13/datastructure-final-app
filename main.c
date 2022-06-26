@@ -60,6 +60,12 @@ int main () {
 
         // Main switch
         switch (option) {
+            // Exit
+            case 0:
+                cls
+                ascii_art();
+                printf("Terima Kasih!\n");
+                break;
             // Untuk manajemen buku
             case 1:
                 cls
@@ -158,12 +164,6 @@ int main () {
                 history_management();
                 break;
 
-            // Exit
-            case 0:
-                cls
-                ascii_art();
-                printf("Terima Kasih!\n");
-                break;
 
             default:
                 default_input();
@@ -468,44 +468,67 @@ void pinjamBuku () {
 
         ascii_art();
         printf("Judul Buku\t\t: "); scanf("%[^\n]", judul); clear_buff();
-        printf("Pengarang\t\t: "); scanf("%[^\n]", pengarang); clear_buff();
-        AVLBuku buku = AVLBuku_Search(list_buku, judul, pengarang);
+
+        AVLBuku buku = AVLBuku_SearchJudul(list_buku, judul);
 
         if (buku && buku->data.qty) {
-            addNoPinjaman(orang, no_pinjaman++);
-            printf("\n\nDeadline :\n");
-            printf("1. Set Otomatis (7 hari)\n");
-            printf("2. Set Manual\n");
-            symbl scanf("%d", &option); clear_buff();
+            ArrayBuku list_judul_buku;
+            initArrayBuku(&list_judul_buku);
 
-            if (option == 1) {
-                buku->data.qty--;
-                dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
-                insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+            AVLBuku_GetTitle(list_buku, judul, &list_judul_buku);
+            cls puts("List Buku :\n");
+            for (int i = 0; i < list_judul_buku.used; i++) {
+                printf("%d. Judul : %s\n", i+1,list_judul_buku.array[i].judul);
+                printf("   Pengarang : %s\n\n", list_judul_buku.array[i].pengarang);
             }
-            else {
-                cls
-                int tanggal_deadline;
-                int bulan_deadline;
-                int tahun_deadline;
-                ascii_art();
-                printf("Judul Buku\t\t: %s\n", judul);
-                printf("Pengarang\t\t: %s\n", pengarang);
-                printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
-                printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
-                printf("Tahun Deadline\t\t: "); scanf("%d", &tahun_deadline); clear_buff();
-                int validation = validateDate(tanggal_deadline, bulan_deadline, tahun_deadline);
 
-                if (validation == 0) {
-                    printf("\nTanggal yang diinput tidak tersedia di kalender!\n");
-                    enter getchar();
-                    return;
-                }
-                else {
+            int index;
+            printf("\nMasukan buku yang dipilih [1-%d] : ", list_judul_buku.used);
+            scanf("%d", &index); clear_buff();
+
+            if (index >= 1 && index <= list_judul_buku.used) {
+                strcpy(pengarang, list_judul_buku.array[index-1].pengarang);
+                buku = AVLBuku_Search(list_buku, judul, pengarang);
+                addNoPinjaman(orang, no_pinjaman++);
+                printf("\n\nDeadline :\n");
+                printf("1. Set Otomatis (7 hari)\n");
+                printf("2. Set Manual\n");
+                symbl scanf("%d", &option); clear_buff();
+
+                if (option == 1) {
                     buku->data.qty--;
-                    dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
+                    dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
                     insertArrayPinjaman(&list_pinjaman, dataPinjaman);
                 }
+                else {
+                    cls
+                    int tanggal_deadline;
+                    int bulan_deadline;
+                    int tahun_deadline;
+                    ascii_art();
+                    printf("Judul Buku\t\t: %s\n", judul);
+                    printf("Pengarang\t\t: %s\n", pengarang);
+                    printf("\nTanggal Deadline\t: "); scanf("%d", &tanggal_deadline); clear_buff();
+                    printf("Bulan Deadline\t\t: "); scanf("%d", &bulan_deadline); clear_buff();
+                    printf("Tahun Deadline\t\t: "); scanf("%d", &tahun_deadline); clear_buff();
+                    int validation = validateDate(tanggal_deadline, bulan_deadline, tahun_deadline);
+
+                    if (validation == 0) {
+                        printf("\nTanggal yang diinput tidak tersedia di kalender!\n");
+                        enter getchar();
+                        return;
+                    }
+                    else {
+                        buku->data.qty--;
+                        dataPinjaman = newPinjaman(judul, pengarang, nik, tanggal_deadline, bulan_deadline, tahun_deadline);
+                        insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+                    }
+                }
+            }
+            else {
+                puts("Input out of range");
+                enter getchar();
+                return;
             }
         }
         else {

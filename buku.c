@@ -21,6 +21,32 @@ typedef struct node {
   int height;
 } NodeBuku;
 
+typedef struct {
+  DataBuku *array;
+  size_t used;
+  size_t size;
+} ArrayBuku;
+
+void initArrayBuku(ArrayBuku *a) {
+  a->array = (DataBuku*)malloc(10 * sizeof(DataBuku));
+  a->used = 0;
+  a->size = 10;
+}
+
+void insertArrayBuku(ArrayBuku *a, DataBuku element) {
+  if (a->used == a->size) {
+    a->size *= 2;
+    a->array = (DataBuku*)realloc(a->array, a->size * sizeof(DataBuku));
+  }
+  a->array[a->used++] = element;
+}
+
+void freeArrayBuku(ArrayBuku *a) {
+  free(a->array);
+  a->array = NULL;
+  a->used = a->size = 0;
+}
+
 int maxHeightBuku(int a, int b) {
   return (a > b) ? a : b;
 }
@@ -167,6 +193,22 @@ AVLBuku AVLBuku_Search(AVLBuku root, const char* judul, const char* pengarang) {
     if (strcmp(pengarang, root->data.pengarang) < 0) return AVLBuku_Search(root->left, judul, pengarang);
     else if (strcmp(pengarang, root->data.pengarang) > 0) return AVLBuku_Search(root->right, judul, pengarang);
     else return root;
+  }
+}
+
+AVLBuku AVLBuku_SearchJudul(AVLBuku root, const char* judul) {
+  if (root == NULL) return NULL;
+  else if (strcmp(judul, root->data.judul) < 0) return AVLBuku_SearchJudul(root->left, judul);
+  else if (strcmp(judul, root->data.judul) > 0) return AVLBuku_SearchJudul(root->right, judul);
+  else return root;
+}
+
+// Ambil semua judul buku (O(n))
+void AVLBuku_GetTitle(AVLBuku root, const char* judul, ArrayBuku* arr) {
+  if (root) {
+    AVLBuku_GetTitle(root->left, judul, arr);
+    if (!strcmp(judul, root->data.judul)) insertArrayBuku(arr, root->data);
+    AVLBuku_GetTitle(root->right, judul, arr);
   }
 }
 

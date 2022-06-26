@@ -220,9 +220,8 @@ void printDataPinjaman(DataMember member_data, ArrayPinjaman list_pinjaman) {
     puts("List Pinjaman : ");
     for (int i = 0; i < arridx; i++) {
       Pinjaman dataPinjaman = list_pinjaman.arr[arr[i]];
-      printf("%d. %s - ",i+1,dataPinjaman.judul);
-      printFormattedDate(&dataPinjaman.tanggal_deadline);
-      printf("\n");
+      printf(" %d. %s (%s)\n",i+1,dataPinjaman.judul,dataPinjaman.pengarang);
+      printf("    Deadline : "); printFormattedDate(&dataPinjaman.tanggal_deadline); printf("\n");
     }
   }
 }
