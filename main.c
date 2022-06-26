@@ -429,7 +429,7 @@ void updateBuku () {
     printf("-------------------------\n");
     printf("Judul Buku\t\t: "); scanf("%[^\n]", newJudul); clear_buff();
     printf("Pengarang\t\t: "); scanf("%[^\n]", newPengarang); clear_buff();
-    printf("Jumlah Buku\t\t: "); scanf("%d", &newQty);
+    printf("Jumlah Buku\t\t: "); scanf("%d", &newQty); clear_buff();
 
     AVLBuku_Insert(&list_buku, newDataBuku(newJudul, newPengarang, newQty));
 
@@ -476,10 +476,11 @@ void pinjamBuku () {
             initArrayBuku(&list_judul_buku);
 
             AVLBuku_GetTitle(list_buku, judul, &list_judul_buku);
-            cls puts("List Buku :\n");
+            cls ascii_art();
+            puts("List Buku :\n");
             for (int i = 0; i < list_judul_buku.used; i++) {
-                printf("%d. Judul : %s\n", i+1,list_judul_buku.array[i].judul);
-                printf("   Pengarang : %s\n\n", list_judul_buku.array[i].pengarang);
+                printf("%d. Judul\t: %s\n", i+1,list_judul_buku.array[i].judul);
+                printf("   Pengarang\t: %s\n\n", list_judul_buku.array[i].pengarang);
             }
 
             int index;
@@ -496,9 +497,12 @@ void pinjamBuku () {
                 symbl scanf("%d", &option); clear_buff();
 
                 if (option == 1) {
+                    cls ascii_art();
                     buku->data.qty--;
                     dataPinjaman = newPinjaman(judul, pengarang, nik, 0, 0, 0);
                     insertArrayPinjaman(&list_pinjaman, dataPinjaman);
+                    printf("Judul\t\t: %s\n", judul);
+                    printf("Pengarang\t: %s\n", pengarang);
                 }
                 else {
                     cls
@@ -579,7 +583,7 @@ void returnBuku () {
 
     // masukin nik
     char nik[MxN];
-    printf("Masukan NIK : ");
+    printf("Masukan NIK\t: ");
     scanf("%s",nik); clear_buff();
 
     // tampilin orang minjem apa aja yang blom dibalikin
@@ -679,7 +683,7 @@ void reminder() {
         else if (!selisih_hari) printf(" (Hari Terakhir)\n");
         else printf(" (Terlambat)\n");
     }
-    printf("\n");
+    printf("\n\n");
     enter getchar();
 }
 
