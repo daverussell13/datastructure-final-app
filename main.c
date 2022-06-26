@@ -44,8 +44,6 @@ ArrayPinjaman list_pinjaman;
 const int denda = 5000;
 int no_pinjaman = 0;
 
-FILE *fp;
-
 int main () {
     int option;
     int option_case_1;
@@ -184,7 +182,7 @@ void clear_buff() {
 
 void writeDataPinjaman() {
     int i;
-    fp = fopen("dataPeminjam.txt", "w");
+    FILE* fp = fopen("dataPeminjam.txt", "w");
     for (i = 0; i < list_pinjaman.used; i++) {
         fprintf(
             fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
@@ -283,20 +281,22 @@ void load_data () {
     Pinjaman tempPeminjam;
     initArrayPinjaman(&list_pinjaman, 10);
 
-    fp = fopen("dataBuku.txt", "r");
+    FILE* fp = fopen("dataBuku.txt", "r");
     while (fscanf(fp,"%[^#]#%[^#]#%d\n", tempBuku.judul, tempBuku.pengarang, &tempBuku.qty) != EOF) {
         AVLBuku_Insert(&list_buku, tempBuku);
     }
+    fclose(fp);
 
-    fp = fopen("dataMember.txt", "r");
-    while (fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^\n]\n", tempMember.nama, tempMember.no_hp, tempMember.alamat, tempMember.nik) != EOF) {
+    FILE* fp2 = fopen("dataMember.txt", "r");
+    while (fscanf(fp2, "%[^#]#%[^#]#%[^#]#%[^\n]\n", tempMember.nama, tempMember.no_hp, tempMember.alamat, tempMember.nik) != EOF) {
         AVLMember_Insert(&list_member, newDataMember(tempMember.nama,tempMember.no_hp,tempMember.alamat,tempMember.nik));
     }
+    fclose(fp2);
 
-    fp = fopen("dataPeminjam.txt", "r");
+    FILE* fp3 = fopen("dataPeminjam.txt", "r");
     while (
         fscanf (
-            fp, "%[^#]#%[^#]#%[^#]#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c ",
+            fp3, "%[^#]#%[^#]#%[^#]#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c ",
             tempPeminjam.nik_peminjam,
             tempPeminjam.judul,
             tempPeminjam.pengarang,
@@ -329,8 +329,7 @@ void load_data () {
         AVLMember peminjam = AVLMember_Search(list_member, tempPeminjam.nik_peminjam);
         addNoPinjaman(peminjam, no_pinjaman++);
     }
-
-    fclose(fp);
+    fclose(fp3);
 }
 
 int template_fitur () {
@@ -362,7 +361,7 @@ void insertBuku () {
 
     AVLBuku_Insert(&list_buku, newDataBuku(judul, pengarang, qty));
 
-    fp = fopen("dataBuku.txt", "w");
+    FILE* fp = fopen("dataBuku.txt", "w");
     AVLBuku_WriteAllData(list_buku, fp);
     fclose(fp);
     template_akhir();
@@ -433,7 +432,7 @@ void updateBuku () {
 
     AVLBuku_Insert(&list_buku, newDataBuku(newJudul, newPengarang, newQty));
 
-    fp = fopen("dataBuku.txt", "w");
+    FILE* fp = fopen("dataBuku.txt", "w");
     AVLBuku_WriteAllData(list_buku, fp);
     fclose(fp);
 
@@ -542,7 +541,7 @@ void pinjamBuku () {
         }
 
         // write data pinjaman
-        fp = fopen("dataPeminjam.txt", "w");
+        FILE* fp = fopen("dataPeminjam.txt", "w");
         for (i = 0; i < list_pinjaman.used; i++) {
             fprintf(
                 fp, "%s#%s#%s#%d/%d/%d#%d/%d/%d#%d/%d/%d#%c\n",
@@ -561,10 +560,11 @@ void pinjamBuku () {
                 list_pinjaman.arr[i].status
             );
         }
-
-        fp = fopen("dataBuku.txt", "w");
-        AVLBuku_WriteAllData(list_buku, fp);
         fclose(fp);
+
+        FILE* fp2 = fopen("dataBuku.txt", "w");
+        AVLBuku_WriteAllData(list_buku, fp2);
+        fclose(fp2);
         printf("\nData peminjam berhasil ditambahkan!\n");
         enter getchar();
     }
@@ -631,7 +631,7 @@ void returnBuku () {
                 );
                 AVLBuku_UpdateQty(list_buku, buku->data.judul, buku->data.pengarang, buku->data.qty+1);
                 writeDataPinjaman();
-                fp = fopen("dataBuku.txt","w");
+                FILE* fp = fopen("dataBuku.txt","w");
                 AVLBuku_WriteAllData(list_buku, fp);
                 fclose(fp);
             }
@@ -712,7 +712,7 @@ void addMembership () {
 
     if (!AVLMember_Search(list_member, nik)) {
         AVLMember_Insert(&list_member, newDataMember(nama, no_hp, alamat, nik));
-        fp = fopen("dataMember.txt", "w");
+        FILE* fp = fopen("dataMember.txt", "w");
         AVLMember_WriteAllData(list_member, fp);
         fclose(fp);
 
@@ -736,7 +736,7 @@ void deleteMembership () {
     if (nyari) {
         printf("\nData a.n %s, berhasil dihapus!\n", nyari->data.nama);
         AVLMember_Delete(&list_member, nik);
-        fp = fopen("dataMember.txt", "w");
+        FILE* fp = fopen("dataMember.txt", "w");
         AVLMember_WriteAllData(list_member, fp);
         fclose(fp);
         enter getchar();
@@ -790,7 +790,7 @@ void updateMembership () {
                 break;
         }
 
-        fp = fopen("dataMember.txt", "w");
+        FILE* fp = fopen("dataMember.txt", "w");
         AVLMember_WriteAllData(list_member, fp);
         fclose(fp);
         printf("\nData member berhasil diupdate!\n");
